@@ -5,7 +5,7 @@ I have a problem, I need to remove water that is accumulating below my HVAC syst
 
 Solution: Instead of paying for an entirely new HVAC system like the HVAC company suggested, set up a small submersible pump to pump the water from the overflow basin into the drain pipe when the level is high enough for the submersible pump to operate.
 
-I'm open to suggestions on basically all this, but this is what I have so far. A float sensor that's switching a 12v power source, connected to a SPST(1 NO) DC12V Coil, 30A SPST 120 VAC relay. The 120v side of the relay will connect to an aquarium pump. I was going to put it all in a plastic project box so that I can just have a 120v outlet on the box that I can plug the pump into that's switched by the water level.
+Two float sensors, one to detect when the water level is too low to pump, and the other to sit at a higher point which will trigger a pump cycle when the water gets that high. Both the float sensors will connect to the Adafruit ItsyBitsy and it will use computer magic to determine when to run the pump. The 120v side of the relay will connect to an aquarium pump. I was going to put it all in a plastic project box so that I can just have a 120v outlet on the box that I can plug the pump into that's switched by the water level.
 
 Parts list (prices are whatever they were when I purchased in July 2022):
 * $10 Amazon Basics Power Cord - 12-Foot, Black get power to project box
@@ -25,3 +25,5 @@ Parts list (prices are whatever they were when I purchased in July 2022):
 * $1 Short Male Header Kit for ItsyBitsy (turns out the ItsyBitsy comes with headers)
 * $5 Rugged Metal Pushbutton with Red LED Ring - 16mm Red Momentary press to disable automatic pumping. Red light on indicates auto pumping disabled.
 * $5 Rugged Metal Pushbutton with Green LED Ring - 16mm Green Momentary hold to manually activate pump. Green light indicates pump is active.
+
+https://learn.adafruit.com/introducting-itsy-bitsy-32u4/pinouts
