@@ -27,3 +27,10 @@ Parts list (prices are whatever they were when I purchased in July 2022):
 * $5 Rugged Metal Pushbutton with Green LED Ring - 16mm Green Momentary hold to manually activate pump. Green light indicates pump is active.
 
 https://learn.adafruit.com/introducting-itsy-bitsy-32u4/pinouts
+
+## Initial Setup
+Add aditional boards manager url in Arduino IDE Preferences https://adafruit.github.io/arduino-board-index/package_adafruit_index.json
+
+Go to Boards Manager and install Adafruit AVR Boards
+
+Select Adafruit ItsyBitsy 32u4 5v 16MHz board
