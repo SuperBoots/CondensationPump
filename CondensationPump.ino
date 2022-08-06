@@ -6,8 +6,8 @@ const int redSwitchPin = 2;
 const int greenSwitchPin = 3;
 const int greenLEDPin = 5;
 const int redLEDPin = 7;
-const int 120vRelayPin = 9;
-const int BuiltInLED = 9;
+const int relayPin = 9;
+const int BuiltInLEDPin = 13;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -18,31 +18,50 @@ void setup() {
   pinMode(greenSwitchPin, INPUT); // reads input from green manual-on button
   pinMode(greenLEDPin, OUTPUT); // controls green ring LED around button
   pinMode(redLEDPin, OUTPUT); // controls red ring LED around button
-  pinMode(120vRelayPin, OUTPUT); // controls 120v relay for pump control, High = on
-  pinMode(BuiltInLED, OUTPUT); // onboard LED
+  pinMode(relayPin, OUTPUT); // controls 120v relay for pump control, High = on
+  pinMode(BuiltInLEDPin, OUTPUT); // onboard LED
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  int floatSwitch0 = digitalRead(0);
-  int floatSwitch1 = digitalRead(1);
+  int bottomFloatSwitch = digitalRead(bottomFloatSwitchPin);
+  int topFloatSwitch = digitalRead(topFloatSwitchPin);
+  int redButton = digitalRead(redSwitchPin);
+  int greenButton = digitalRead(greenSwitchPin);
   delay(100);
-  if (floatSwitch0 != 0)
+  if (bottomFloatSwitch != 0)
   {
-    digitalWrite(13, HIGH);
+    digitalWrite(greenLEDPin, HIGH);
   }
   else
   {
-    digitalWrite(13, LOW);
+    digitalWrite(greenLEDPin, LOW);
   }
-  if (floatSwitch1 != 0)
+  
+  if (topFloatSwitch != 0)
   {
-    digitalWrite(2, HIGH);
-    digitalWrite(3, HIGH);
+    digitalWrite(redLEDPin, HIGH);
   }
   else
   {
-    digitalWrite(2, LOW);
-    digitalWrite(3, LOW);
+    digitalWrite(redLEDPin, LOW);
+  }
+  
+  if (redButton != 0)
+  {
+    digitalWrite(BuiltInLEDPin, HIGH);
+  }
+  else
+  {
+    digitalWrite(BuiltInLEDPin, LOW);
+  }
+
+  if (greenButton != 0)
+  {
+    digitalWrite(relayPin, HIGH);
+  }
+  else
+  {
+    digitalWrite(relayPin, LOW);
   }
 }
