@@ -30,8 +30,8 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
   delay(10);
-  int bottomFloatSwitch = digitalRead(bottomFloatSwitchPin);
-  int topFloatSwitch = digitalRead(topFloatSwitchPin);
+  int bottomFloatSwitch = digitalRead(bottomFloatSwitchPin); // 0 == floating
+  int topFloatSwitch = digitalRead(topFloatSwitchPin); // 0 == floating
   int redButton = digitalRead(redSwitchPin);
   int greenButton = digitalRead(greenSwitchPin);
 
@@ -61,12 +61,12 @@ void loop() {
     StopPumping();
   }
 
-  if (manualMode == 0 && pumping == 0 && topFloatSwitch == 1 && bottomFloatSwitch == 1)
+  if (manualMode == 0 && pumping == 0 && topFloatSwitch == 0 && bottomFloatSwitch == 0)
   {
     StartPumping();
   }
 
-  if (manualMode == 0 && pumping == 1 && topFloatSwitch == 0 && bottomFloatSwitch == 0)
+  if (manualMode == 0 && pumping == 1 && topFloatSwitch == 1 && bottomFloatSwitch == 1)
   {
     StopPumping();
   }
