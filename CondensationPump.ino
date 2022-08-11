@@ -16,46 +16,47 @@ int pumping = 0;
 unsigned long pumpStartTime = 0;
 int errorMode = 0;
 int redLED = 0;
+int autoPumpCount = 0;
+int greenLED = 0;
 
-// This whole manualModePressCompleted exists to prevent rapid toggling between
-// manual mode on/off while the button is pressed
+// This whole manualModePressCompleted exists to prevent rapid toggling between manual mode on/off while the button is pressed
 int manualModePressCompleted = 1; 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  // initialize digital pin 13 as an output.
-  pinMode(bottomFloatSwitchPin, INPUT); // reads input from lower float switch
-  pinMode(topFloatSwitchPin, INPUT); // reads input from upper float switch
+  pinMode(bottomFloatSwitchPin, INPUT); // reads input from lower float switch, 0 == floating
+  pinMode(topFloatSwitchPin, INPUT); // reads input from upper float switch, 0 == floating
   pinMode(redSwitchPin, INPUT); // reads input from red stop button
   pinMode(greenSwitchPin, INPUT); // reads input from green manual-on button
   pinMode(greenLEDPin, OUTPUT); // controls green ring LED around button
   pinMode(redLEDPin, OUTPUT); // controls red ring LED around button
   pinMode(relayPin, OUTPUT); // controls 120v relay for pump control, High = on
+
+  Serial.begin(9600);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  delay(10);
+  delay(10); // check state 100 times per second
+
+  //---------------------------------------------------------------------------
+  // Read current state of buttons, sensors, etc.
   int bottomFloatSwitch = digitalRead(bottomFloatSwitchPin); // 0 == floating
   int topFloatSwitch = digitalRead(topFloatSwitchPin); // 0 == floating
   int redButton = digitalRead(redSwitchPin);
   int greenButton = digitalRead(greenSwitchPin);
   unsigned long currentMillis = millis();
-  unsigned long secondsPumpHasBeenRunning = (currentMillis-pumpStartTime)/1000;
-
+  unsigned long secondsPumpRunning = (currentMillis-pumpStartTime)/1000;
   // If clock has looped just count from zero instead of recorded start time
   if (currentMillis < pumpStartTime) {
-    secondsPumpHasBeenRunning = currentMillis / 1000;
+    secondsPumpRunning = currentMillis / 1000;
   }
 
-  if (manualMode == 0 && pumping == 1 && errorMode == 0 && secondsPumpHasBeenRunning > 20) {
-    EnableErrorMode();
-  }
-
+  //---------------------------------------------------------------------------
+  // Manual Mode Button Logic
   if (manualModePressCompleted == 0 && redButton == 0) {
     manualModePressCompleted = 1;
   }
-
   // First check if manual mode is being activated or deactivated
   if (redButton == 1 && manualMode == 1 && manualModePressCompleted == 1) {
     DisableManualMode();
@@ -65,27 +66,40 @@ void loop() {
     EnableManualMode();
     manualModePressCompleted = 0;
   }
-
+  
+  //---------------------------------------------------------------------------
+  // Error Mode Logic 
+  if (manualMode == 0 && pumping == 1 && errorMode == 0 && secondsPumpRunning > 20) {
+    EnableErrorMode();
+  }
   if (errorMode == 1) {
     FlashRedLED(currentMillis);
     return;
   }
 
+  //---------------------------------------------------------------------------
+  // Manual pumping logic
   if (manualMode == 1 && greenButton == 1 && pumping == 0) {
     StartPumping();
   }
   else if (manualMode == 1 && greenButton == 0 && pumping == 1) {
     StopPumping();
   }
-
-  if (manualMode == 0 && pumping == 0 && topFloatSwitch == 0 
-      && bottomFloatSwitch == 0) {
+  
+  //---------------------------------------------------------------------------
+  // Auto pumping logic
+  if (manualMode == 0 && pumping == 0 && topFloatSwitch == 0 && bottomFloatSwitch == 0) {
     StartPumping();
+    autoPumpCount = autoPumpCount + 1;
+  }
+  if (manualMode == 0 && pumping == 1 && topFloatSwitch == 1 && bottomFloatSwitch == 1) {
+    StopPumping();
   }
 
-  if (manualMode == 0 && pumping == 1 && topFloatSwitch == 1 
-      && bottomFloatSwitch == 1) {
-    StopPumping();
+  //---------------------------------------------------------------------------
+  // Flash green LED to indicate number of auto pump cycles since powered on
+  if (manualMode == 0 && pumping == 0 && autoPumpCount > 0) {
+    FlashGreenAutoPumpCount(currentMillis);
   }
 }
 
@@ -94,6 +108,8 @@ void EnableManualMode() {
   errorMode = 0; // clear errors
   digitalWrite(redLEDPin, HIGH);
   redLED = 1;
+  digitalWrite(greenLEDPin, LOW);
+  greenLED = 0;
 }
 
 void DisableManualMode() {
@@ -123,7 +139,7 @@ void EnableErrorMode() {
 void FlashRedLED(unsigned long currentMillis) {
   // Check the current clock time, turn red LED on in the first half of any 
   // given second, turn red LED off in the second half of the second.
-  int currentSecondRemainderInMillis = currentMillis % 1000;
+  unsigned long currentSecondRemainderInMillis = currentMillis % 1000;
   if (currentSecondRemainderInMillis < 500 && redLED == 0) {
     digitalWrite(redLEDPin, HIGH);
     redLED = 1;
@@ -131,5 +147,27 @@ void FlashRedLED(unsigned long currentMillis) {
   else if (currentSecondRemainderInMillis >= 500 && redLED == 1) {
     digitalWrite(redLEDPin, LOW);
     redLED = 0;
+  }
+}
+
+void FlashGreenAutoPumpCount(unsigned long currentMillis) {
+  unsigned long individualFlashTimeMillis = 500;
+  unsigned long totalCycleTimeMillis = 60000;
+  unsigned long currentFlashRemainderInMillis = currentMillis % (individualFlashTimeMillis * 2);
+  unsigned long currentCycleRemainderInMillis = currentMillis % totalCycleTimeMillis;
+  int stillFlashing = 0;
+  if (currentCycleRemainderInMillis < (individualFlashTimeMillis * 2 * autoPumpCount)) {
+    stillFlashing = 1;
+  }
+  if (stillFlashing == 0) {
+     return;
+  }
+  if (currentFlashRemainderInMillis < individualFlashTimeMillis && greenLED == 0) {
+    digitalWrite(greenLEDPin, HIGH);
+    greenLED = 1;
+  }
+  else if (currentFlashRemainderInMillis >= individualFlashTimeMillis && greenLED == 1) {
+    digitalWrite(greenLEDPin, LOW);
+    greenLED = 0;
   }
 }
