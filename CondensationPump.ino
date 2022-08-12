@@ -31,8 +31,6 @@ void setup() {
   pinMode(greenLEDPin, OUTPUT); // controls green ring LED around button
   pinMode(redLEDPin, OUTPUT); // controls red ring LED around button
   pinMode(relayPin, OUTPUT); // controls 120v relay for pump control, High = on
-
-  Serial.begin(9600);
 }
 
 // the loop function runs over and over again forever
@@ -90,7 +88,7 @@ void loop() {
   // Auto pumping logic
   if (manualMode == 0 && pumping == 0 && topFloatSwitch == 0 && bottomFloatSwitch == 0) {
     StartPumping();
-    autoPumpCount = autoPumpCount + 1;
+    autoPumpCount++;
   }
   if (manualMode == 0 && pumping == 1 && topFloatSwitch == 1 && bottomFloatSwitch == 1) {
     StopPumping();
@@ -151,8 +149,16 @@ void FlashRedLED(unsigned long currentMillis) {
 }
 
 void FlashGreenAutoPumpCount(unsigned long currentMillis) {
+  // Flash the green LED the same number of times as the autoPumpCount then
+  // wait a period of time and repeat.
+  
+  // individualFlashTimeMillis is the milliseconds the LED will be lit for, then it 
+  // will wait the same amount of time before lighting again. For example a value of 
+  // 500 will result in a cycle of light for 1/2 a second, off for 1/2 second.
+  // totalCycleTimeMillis is ten seconds longer than the time required to flash
+  // out the auto pump count.
   unsigned long individualFlashTimeMillis = 500;
-  unsigned long totalCycleTimeMillis = 60000;
+  unsigned long totalCycleTimeMillis = individualFlashTimeMillis * 2 * autoPumpCount + 10000;
   unsigned long currentFlashRemainderInMillis = currentMillis % (individualFlashTimeMillis * 2);
   unsigned long currentCycleRemainderInMillis = currentMillis % totalCycleTimeMillis;
   int stillFlashing = 0;
