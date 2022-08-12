@@ -1,6 +1,22 @@
 # CondensationPump
 This code is written for an Adafruit ItsyBitsy 32u4 - 5V 16MHz microcontroller.
 
+## Usage Instructions:
+
+This pump controller starts in AUTO MODE when it first turns on. 
+While in AUTO MODE, if both float sensors are open (floating) the pump will turn on, if both float sensors are closed the pump will turn off. This completes 1 pump cycle. The green LED will flash the number of pump cycles since the controller has been powered on.
+
+Press the red button to enter MANUAL MODE, the red LED will remain lit.
+While in MANUAL MODE, press and hold the green pump button to activate pump.
+
+If the pump runs longer than the maximum run time while in AUTO MODE it will enter ERROR MODE. 
+While in ERROR MODE the pump will be disabled and the red LED will flash continuously.
+In order to exit ERROR MODE you must press MANUAL MODE.
+
+Maximum Pump Run Time: 20 Seconds
+
+## Overview
+
 I have a problem, I need to remove water that is accumulating below my HVAC system. Water accumulates in the reservoir below the heat pump coil when the AC is on because the condensation does not drip into the drain tray like it's supposed to. It eventually overflows and we get water accumulating on the garage floor.
 
 Solution: Instead of paying for an entirely new HVAC system like the HVAC company suggested, set up a small submersible pump to pump the water from the overflow basin into the drain pipe when the level is high enough for the submersible pump to operate.
